@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Anônimo - FreeMode876</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* Facebook Header */
+        .fb-header {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 56px;
+        }
+
+        .header-content {
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .hamburger-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            background: #e4e6eb;
+        }
+
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .hamburger-icon span {
+            width: 20px;
+            height: 2px;
+            background: #050505;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        .logo {
+            font-size: 28px;
+            color: #1877f2;
+            font-weight: bold;
+        }
+
+        .search-box {
+            background: #f0f2f5;
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 240px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .header-center {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .header-icon-btn {
+            padding: 0 40px;
+            height: 56px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            border-bottom: 3px solid transparent;
+            transition: background 0.2s;
+        }
+
+        .header-icon-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .header-icon-btn.active {
+            border-bottom-color: #1877f2;
+        }
+
+        .header-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #65676b;
+        }
+
+        .header-icon-btn.active svg {
+            fill: #1877f2;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            border-radius: 50px;
+            background: #f0f2f5;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .profile-btn:hover {
+            background: #e4e6eb;
+        }
+
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Sidebar Menu */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 56px;
+            width: 280px;
+            height: calc(100vh - 56px);
+            background: #fff;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 998;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #f0f2f5;
+        }
+
+        .sidebar-icon {
+            width: 36px;
+            height: 36px;
+            background: #e4e6eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #050505;
+        }
+
+        .sidebar-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #050505;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: #e4e6eb;
+            margin: 8px 0;
+        }
+
+        /* Main Content */
+        .main-container {
+            margin-top: 56px;
+            display: flex;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .left-sidebar {
+            width: 280px;
+            position: sticky;
+            top: 72px;
+            height: fit-content;
+            display: none;
+        }
+
+        .feed-container {
+            flex: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .right-sidebar {
+            width: 280px;
+            position: sticky;
+            top: 72px;
+            height: fit-content;
+            display: none;
+        }
+
+        /* Post Creator */
+        .post-creator {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            padding: 12px 16px 10px;
+            margin-bottom: 16px;
+        }
+
+        .post-creator-top {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .post-creator-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-creator-input {
+            flex: 1;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 16px;
+            font-size: 15px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .post-creator-input:hover {
+            background: #e4e6eb;
+        }
+
+        .post-creator-divider {
+            height: 1px;
+            background: #e4e6eb;
+            margin: 10px 0;
+        }
+
+        .post-creator-actions {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .post-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #65676b;
+            transition: background 0.2s;
+        }
+
+        .post-action-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .post-action-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Feed Post */
+        .feed-post {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+
+        .post-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .post-author {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #050505;
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .post-menu-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-menu-btn:hover {
+            background: #f0f2f5;
+        }
+
+        .post-content {
+            padding: 0 16px 12px;
+            font-size: 15px;
+            line-height: 1.3333;
+            color: #050505;
+        }
+
+        .post-stats {
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            color: #65676b;
+            font-size: 15px;
+            border-bottom: 1px solid #e4e6eb;
+        }
+
+        .post-stats-left {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .post-stats-left:hover {
+            text-decoration: underline;
+        }
+
+        .reaction-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+        }
+
+        .post-stats-right {
+            cursor: pointer;
+        }
+
+        .post-stats-right:hover {
+            text-decoration: underline;
+        }
+
+        .post-actions {
+            padding: 4px 8px;
+            display: flex;
+        }
+
+        .post-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #65676b;
+            transition: background 0.2s;
+        }
+
+        .post-action:hover {
+            background: #f0f2f5;
+        }
+
+        .post-action.active {
+            color: #e74c3c;
+        }
+
+        .post-action svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Comments Section */
+        .comments-section {
+            padding: 0 16px 12px;
+            display: none;
+        }
+
+        .comments-section.show {
+            display: block;
+        }
+
+        .comment {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-bubble {
+            background: #f0f2f5;
+            border-radius: 18px;
+            padding: 8px 12px;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .comment-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #050505;
+            margin-bottom: 2px;
+        }
+
+        .comment-text {
+            font-size: 15px;
+            color: #050505;
+            word-wrap: break-word;
+        }
+
+        .comment-actions {
+            padding: 0 12px;
+            margin-top: 4px;
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #65676b;
+            font-weight: 600;
+        }
+
+        .comment-action {
+            cursor: pointer;
+        }
+
+        .comment-action:hover {
+            text-decoration: underline;
+        }
+
+        .comment-input-wrapper {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .comment-send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #1877f2;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comment-send-btn:hover {
+            background: #166fe5;
+        }
+
+        .comment-send-btn:disabled {
+            background: #e4e6eb;
+            cursor: not-allowed;
+        }
+
+        /* Share Modal */
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .share-modal.show {
+            display: flex;
+        }
+
+        .share-dialog {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .share-header {
+            padding: 16px;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .share-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #050505;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f2f5;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #e4e6eb;
+        }
+
+        .share-content {
+            padding: 16px;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .share-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #f0f2f5;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #050505;
+            transition: background 0.2s;
+        }
+
+        .share-option:hover {
+            background: #e4e6eb;
+        }
+
+        .share-option svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .share-option.facebook {
+            background: #1877f2;
+            color: white;
+        }
+
+        .share-option.facebook:hover {
+            background: #166fe5;
+        }
+
+        .share-option.twitter {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .share-option.twitter:hover {
+            background: #1a91da;
+        }
+
+        .share-option.whatsapp {
+            background: #25d366;
+            color: white;
+        }
+
+        .share-option.whatsapp:hover {
+            background: #20ba5a;
+        }
+
+        /* Online Badge */
+        .online-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #050505;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #31a24c;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .search-box {
+                width: 240px;
+            }
+        }
+
+        @media (min-width: 1100px) {
+            .left-sidebar,
+            .right-sidebar {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-center {
+                display: none;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .post-creator-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0f2f5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #bcc0c4;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8abaf;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="fb-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()">
+                    <div class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
+                <div class="logo">💬</div>
+                <div class="search-box">
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="#65676b">
+                        <path d="M10.743 10.035a6 6 0 1 0-.707.707l4.109 4.109a.5.5 0 0 0 .707-.707l-4.109-4.109zM6.5 11a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+                    </svg>
+                    <input type="text" placeholder="Pesquisar">
+                </div>
+            </div>
+
+            <div class="header-center">
+                <button class="header-icon-btn active">
+                    <svg viewBox="0 0 28 28">
+                        <path d="M25.825 12.29C25.824 5.996 20.685.857 14.39.857 8.098.857 2.96 5.996 2.96 12.29c0 5.735 4.097 10.51 9.52 11.57v-8.18H9.4v-3.39h3.08v-2.58c0-3.04 1.812-4.72 4.58-4.72.935 0 1.73.07 1.96.1v2.27h-1.345c-1.056 0-1.26.5-1.26 1.235v1.62h2.52l-.33 3.39h-2.19v8.18c5.423-1.06 9.52-5.835 9.52-11.57z"/>
+                    </svg>
+                </button>
+                <button class="header-icon-btn">
+                    <svg viewBox="0 0 28 28">
+                        <path d="M23.5 9.5H10.25a.75.75 0 00-.75.75v7c0 .414.336.75.75.75H17v5.5H4.5v-19h19v5zm0 14h-5v-6.25a.75.75 0 00-.75-.75H11V11h12.5v12.5z"/>
+                    </svg>
+                </button>
+                <button class="header-icon-btn">
+                    <svg viewBox="0 0 28 28">
+                        <path d="M14 2.042c6.76 0 12 4.952 12 11.64S20.76 25.322 14 25.322a13.091 13.091 0 0 1-3.474-.461.956 .956 0 0 0-.641.047L7.5 25.959a.961.961 0 0 1-1.348-.849l-.065-2.134a.957.957 0 0 0-.322-.684A11.389 11.389 0 0 1 2 13.682C2 6.994 7.24 2.042 14 2.042ZM6.794 17.086a.57.57 0 0 0 .827.05l3.786-2.995a.722.722 0 0 1 .868-.014l2.818 2.114a1.714 1.714 0 0 0 2.572-.43l3.541-5.292a.57.57 0 0 0-.827-.05l-3.786 2.995a.722.722 0 0 1-.868.014l-2.818-2.114a1.714 1.714 0 0 0-2.572.43L6.794 17.086Z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="header-right">
+                <button class="profile-btn">
+                    <div class="profile-avatar" id="headerAvatar">A</div>
+                    <span id="headerUsername">Anônimo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-item">
+            <div class="sidebar-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm0-14c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z"/>
+                </svg>
+            </div>
+            <div class="sidebar-text" id="sidebarUsername">Anônimo#0000</div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-item">
+            <div class="sidebar-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17.5 1.917a6.4 6.4 0 0 0-5.5 3.3 6.4 6.4 0 0 0-5.5-3.3A6.8 6.8 0 0 0 0 8.967c0 4.547 4.786 9.513 8.8 12.88a4.974 4.974 0 0 0 6.4 0C19.214 18.48 24 13.514 24 8.967a6.8 6.8 0 0 0-6.5-7.05z"/>
+                </svg>
+            </div>
+            <div class="sidebar-text">Mensagens Curtidas</div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="sidebar-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <div class="sidebar-text">Meus Comentários</div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-item">
+            <div class="sidebar-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+            </div>
+            <div class="sidebar-text">Sobre</div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="sidebar-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81a.488.488 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+            </div>
+            <div class="sidebar-text">Configurações</div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="left-sidebar">
+            <!-- Left sidebar content can go here -->
+        </div>
+
+        <div class="feed-container">
+            <!-- Post Creator -->
+            <div class="post-creator">
+                <div class="post-creator-top">
+                    <div class="post-creator-avatar" id="creatorAvatar">A</div>
+                    <input type="text" class="post-creator-input" id="postInput" placeholder="No que você está pensando?" onclick="focusPostInput()">
+                </div>
+                <div class="post-creator-divider"></div>
+                <div class="post-creator-actions">
+                    <button class="post-action-btn" onclick="sendPost()">
+                        <svg viewBox="0 0 24 24" fill="#45bd62">
+                            <path d="M6.5 10c-1.103 0-2 .897-2 2s.897 2 2 2 2-.897 2-2-.897-2-2-2zm12 0c-1.103 0-2 .897-2 2s.897 2 2 2 2-.897 2-2-.897-2-2-2zm-6 0c-1.103 0-2 .897-2 2s.897 2 2 2 2-.897 2-2-.897-2-2-2z"/>
+                        </svg>
+                        <span>Publicar Mensagem</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feed Posts -->
+            <div id="feedPosts">
+                <!-- Posts will be inserted here -->
+            </div>
+        </div>
+
+        <div class="right-sidebar">
+            <!-- Right sidebar content can go here -->
+        </div>
+    </div>
+
+    <!-- Online Badge -->
+    <div class="online-badge">
+        <div class="online-dot"></div>
+        <span id="onlineCount">156 online</span>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-dialog">
+            <div class="share-header">
+                <div class="share-title">Compartilhar</div>
+                <button class="close-btn" onclick="closeShareModal()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="#050505">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="share-content">
+                <div class="share-options">
+                    <button class="share-option facebook" onclick="shareToFacebook()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                    </button>
+                    <button class="share-option twitter" onclick="shareToTwitter()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                        Twitter
+                    </button>
+                    <button class="share-option whatsapp" onclick="shareToWhatsApp()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                        WhatsApp
+                    </button>
+                    <button class="share-option" onclick="copyLink()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Copiar Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate user ID
+        let userId = localStorage.getItem('freemode876_userId');
+        if (!userId) {
+            userId = 'freemode876_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('freemode876_userId', userId);
+        }
+
+        // Generate username
+        function generateUsername(id) {
+            const hash = id.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            const number = Math.abs(hash) % 10000;
+            return `ID#${number.toString().padStart(4, '0')}`;
+        }
+
+        const username = generateUsername(userId);
+        const userInitial = username.charAt(0);
+
+        // Set user info in header
+        document.getElementById('headerUsername').textContent = username.split('#')[0];
+        document.getElementById('headerAvatar').textContent = userInitial;
+        document.getElementById('sidebarUsername').textContent = username;
+        document.getElementById('creatorAvatar').textContent = userInitial;
+
+        // Load messages
+        let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+        let currentShareMessage = '';
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        // Focus post input
+        function focusPostInput() {
+            const input = document.getElementById('postInput');
+            input.focus();
+        }
+
+        // Send post
+        function sendPost() {
+            const input = document.getElementById('postInput');
+            const content = input.value.trim();
+
+            if (content === '') {
+                alert('Digite uma mensagem!');
+                return;
+            }
+
+            const now = new Date();
+            const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            const message = {
+                id: Date.now(),
+                username: username,
+                userId: userId,
+                content: content,
+                time: time,
+                timestamp: now.getTime(),
+                loveCount: 0,
+                loves: [],
+                comments: []
+            };
+
+            messages.unshift(message);
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+
+            input.value = '';
+            renderPosts();
+        }
+
+        // Render posts
+        function renderPosts() {
+            const feedPosts = document.getElementById('feedPosts');
+            feedPosts.innerHTML = '';
+
+            messages.forEach((msg, index) => {
+                const post = createPostElement(msg, index);
+                feedPosts.appendChild(post);
+            });
+        }
+
+        // Create post element
+        function createPostElement(msg, index) {
+            const post = document.createElement('div');
+            post.className = 'feed-post';
+            post.id = `post-${msg.id}`;
+
+            const isLoved = msg.loves && msg.loves.includes(userId);
+            const msgInitial = msg.username.charAt(0);
+
+            post.innerHTML = `
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="post-avatar">${msgInitial}</div>
+                        <div class="post-info">
+                            <div class="post-name">${msg.username}</div>
+                            <div class="post-time">${msg.time}</div>
+                        </div>
+                    </div>
+                    <button class="post-menu-btn">
+                        <svg viewBox="0 0 20 20" width="20" height="20" fill="#65676b">
+                            <circle cx="10" cy="3" r="2"/>
+                            <circle cx="10" cy="10" r="2"/>
+                            <circle cx="10" cy="17" r="2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="post-content">${msg.content}</div>
+                ${msg.loveCount > 0 || (msg.comments && msg.comments.length > 0) ? `
+                <div class="post-stats">
+                    <div class="post-stats-left">
+                        ${msg.loveCount > 0 ? `
+                            <div class="reaction-icon">❤️</div>
+                            <span>${msg.loveCount}</span>
+                        ` : ''}
+                    </div>
+                    <div class="post-stats-right">
+                        ${msg.comments && msg.comments.length > 0 ? `${msg.comments.length} comentário${msg.comments.length > 1 ? 's' : ''}` : ''}
+                    </div>
+                </div>
+                ` : ''}
+                <div class="post-actions">
+                    <button class="post-action ${isLoved ? 'active' : ''}" onclick="toggleLove(${index})">
+                        <svg viewBox="0 0 24 24" fill="${isLoved ? '#e74c3c' : '#65676b'}">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <span>Adorar</span>
+                    </button>
+                    <button class="post-action" onclick="toggleComments(${index})">
+                        <svg viewBox="0 0 24 24" fill="#65676b">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                        </svg>
+                        <span>Comentar</span>
+                    </button>
+                    <button class="post-action" onclick="openShareModal(\`${msg.content.replace(/`/g, '\\`')}\`)">
+                        <svg viewBox="0 0 24 24" fill="#65676b">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                        <span>Compartilhar</span>
+                    </button>
+                </div>
+                <div class="comments-section" id="comments-${index}">
+                    <div id="comment-list-${index}">
+                        ${msg.comments ? msg.comments.map((comment, cIndex) => {
+                            const commentInitial = comment.username.charAt(0);
+                            return `
+                                <div class="comment">
+                                    <div class="comment-avatar">${commentInitial}</div>
+                                    <div class="comment-content">
+                                        <div class="comment-bubble">
+                                            <div class="comment-name">${comment.username}</div>
+                                            <div class="comment-text">${comment.text}</div>
+                                        </div>
+                                        <div class="comment-actions">
+                                            <span class="comment-action">${comment.time}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('') : ''}
+                    </div>
+                    <div class="comment-input-wrapper">
+                        <div class="comment-avatar">${userInitial}</div>
+                        <input type="text" class="comment-input" id="comment-input-${index}" placeholder="Escreva um comentário..." maxlength="200">
+                        <button class="comment-send-btn" onclick="addComment(${index})">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return post;
+        }
+
+        // Toggle love
+        function toggleLove(index) {
+            if (!messages[index].loves) {
+                messages[index].loves = [];
+            }
+
+            const loveIndex = messages[index].loves.indexOf(userId);
+            
+            if (loveIndex > -1) {
+                messages[index].loves.splice(loveIndex, 1);
+                messages[index].loveCount = Math.max(0, (messages[index].loveCount || 1) - 1);
+            } else {
+                messages[index].loves.push(userId);
+                messages[index].loveCount = (messages[index].loveCount || 0) + 1;
+            }
+
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+            renderPosts();
+        }
+
+        // Toggle comments
+        function toggleComments(index) {
+            const commentsSection = document.getElementById(`comments-${index}`);
+            commentsSection.classList.toggle('show');
+            
+            if (commentsSection.classList.contains('show')) {
+                const input = document.getElementById(`comment-input-${index}`);
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+
+        // Add comment
+        function addComment(index) {
+            const input = document.getElementById(`comment-input-${index}`);
+            const text = input.value.trim();
+
+            if (text === '') return;
+
+            const now = new Date();
+            const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            if (!messages[index].comments) {
+                messages[index].comments = [];
+            }
+
+            messages[index].comments.push({
+                username: username,
+                userId: userId,
+                text: text,
+                time: time
+            });
+
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+            input.value = '';
+            renderPosts();
+            
+            setTimeout(() => {
+                document.getElementById(`comments-${index}`).classList.add('show');
+            }, 100);
+        }
+
+        // Share functions
+        function openShareModal(message) {
+            currentShareMessage = message;
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+        }
+
+        function shareToFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(currentShareMessage);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+        }
+
+        function shareToTwitter() {
+            const text = encodeURIComponent(currentShareMessage + ' - Chat Anônimo');
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+
+        function shareToWhatsApp() {
+            const text = encodeURIComponent(currentShareMessage + '\n\nChat Anônimo: ' + window.location.href);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function copyLink() {
+            const textArea = document.createElement('textarea');
+            textArea.value = currentShareMessage + '\n\nChat Anônimo: ' + window.location.href;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Link copiado!');
+            closeShareModal();
+        }
+
+        // Enter to send post
+        document.getElementById('postInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendPost();
+            }
+        });
+
+        // Update online count
+        function updateOnlineCount() {
+            const count = Math.floor(Math.random() * 50) + 120;
+            document.getElementById('onlineCount').textContent = `${count} online`;
+        }
+
+        setInterval(updateOnlineCount, 10000);
+
+        // Initialize
+        renderPosts();
+
+        // Add example posts if empty
+        if (messages.length === 0) {
+            const exampleMessages = [
+                {
+                    id: Date.now(),
+                    username: 'Anônimo#0001',
+                    userId: 'example1',
+                    content: 'Bem-vindos ao chat anônimo estilo Facebook! 🎉 Compartilhem suas ideias e pensamentos livremente.',
+                    time: '10:30',
+                    timestamp: Date.now(),
+                    loveCount: 12,
+                    loves: [],
+                    comments: [
+                        {
+                            username: 'Anônimo#0042',
+                            userId: 'example2',
+                            text: 'Adorei a interface! Muito parecido com Facebook mesmo! 👏',
+                            time: '10:32'
+                        },
+                        {
+                            username: 'Anônimo#0089',
+                            userId: 'example3',
+                            text: 'Finalmente um lugar para conversar anonimamente!',
+                            time: '10:35'
+                        }
+                    ]
+                },
+                {
+                    id: Date.now() - 1000,
+                    username: 'Anônimo#0156',
+                    userId: 'example4',
+                    content: 'Alguém mais está testando essa plataforma nova? Muito legal poder falar sem revelar identidade! 🔥',
+                    time: '09:45',
+                    timestamp: Date.now() - 1000,
+                    loveCount: 8,
+                    loves: [],
+                    comments: []
+                }
+            ];
+            
+            messages = exampleMessages;
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+            renderPosts();
+        }
+    </script>
+</body>
+</html>
